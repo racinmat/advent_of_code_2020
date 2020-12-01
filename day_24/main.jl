@@ -3,7 +3,7 @@ quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-const data = read_input(cur_day)
+const data = cur_day |> read_input
 
 function part1()
     data

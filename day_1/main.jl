@@ -2,11 +2,17 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
+using Combinatorics
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-const data = read_input(cur_day)
+const data = cur_day |> read_input |> x->read_numbers(x, '\n')
 
 function part1()
-    data
+    for (i, j) in combinations(data, 2)
+        println("$i, $j")
+        if i+j == 2020
+            return i*j
+        end
+    end
 end
 
 function part2()
