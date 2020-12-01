@@ -7,16 +7,19 @@ const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const data = cur_day |> read_input |> x->read_numbers(x, '\n')
 
 function part1()
-    for (i, j) in combinations(data, 2)
-        println("$i, $j")
-        if i+j == 2020
-            return i*j
+    for i in combinations(data, 2)
+        if sum(i) == 2020
+            return prod(i)
         end
     end
 end
 
 function part2()
-    data
+    for i in combinations(data, 3)
+        if sum(i) == 2020
+            return prod(i)
+        end
+    end
 end
 
 println(part1())
