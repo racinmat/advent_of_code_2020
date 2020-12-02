@@ -17,9 +17,8 @@ const data = cur_day |> read_input |> read_lines .|> parse_row
 function part1()
     valid = 0
     for (from, to, char, word) in data
-        hist = countmap(word)
-        println("$from, $to, $char, $word")
-        if from <= get(hist, char, 0) <= to
+        occurs = mapreduce(==(char), +, word)
+        if from <= occurs <= to
             valid += 1
         end
     end
