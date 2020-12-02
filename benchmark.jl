@@ -1,6 +1,6 @@
 using DrWatson
 quickactivate(@__DIR__)
-using BenchmarkTools, ProgressMeter, Printf, Dates, Pkg
+using BenchmarkTools, ProgressMeter, Printf, Dates, Pkg, Latexify
 import DataFrames: DataFrame
 
 max_day = 2
@@ -41,4 +41,5 @@ end
 
 df = benchmarkAll()
 
+display(latexify(df, env=:mdtable, latex=false))
 df = benchmark(day=2)
