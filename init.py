@@ -4,8 +4,7 @@ for i in range(1, 26):
     os.makedirs(f'day_{i:02d}', exist_ok=True)
     open(f'day_{i:02d}/input.txt', 'w+').close()
     with open(f'day_{i:02d}/main.jl', 'w+') as f:
-        f.write(f"""
-module Day:{i:02d}
+        f.write(f"""module Day{i:02d}
 
 using DrWatson
 quickactivate(@__DIR__)

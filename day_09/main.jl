@@ -1,3 +1,5 @@
+module Day09
+
 using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
@@ -13,7 +15,9 @@ function part2()
     data
 end
 
+if false
 println(part1())
 submit(part1(), cur_day, 1)
 println(part2())
 submit(part2(), cur_day, 2)
+end
