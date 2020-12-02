@@ -36,12 +36,12 @@ function part2()
     valid
 end
 
-if false
-println(part1())
-submit(part1(), cur_day, 1)
-println(part2())
-submit(part2(), cur_day, 2)
-end
-
 
 end # module
+
+if false
+println(Day02.part1())
+submit(Day02.part1(), Day02.cur_day, 1)
+println(Day02.part2())
+submit(Day02.part2(), Day02.cur_day, 2)
+end
