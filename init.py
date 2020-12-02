@@ -2,7 +2,9 @@ import os
 import os.path as osp
 for i in range(1, 26):
     os.makedirs(f'day_{i:02d}', exist_ok=True)
-    open(f'day_{i:02d}/input.txt', 'w+').close()
+    input_name = f'day_{i:02d}/input.txt'
+    if not osp.isfile(input_name):
+        open(input_name, 'w+').close()
     with open(f'day_{i:02d}/main.jl', 'w+') as f:
         f.write(f"""module Day{i:02d}
 
@@ -27,4 +29,7 @@ submit(part1(), cur_day, 1)
 println(part2())
 submit(part2(), cur_day, 2)
 end
+
+
+end # module
 """)

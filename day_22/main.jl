@@ -21,3 +21,6 @@ submit(part1(), cur_day, 1)
 println(part2())
 submit(part2(), cur_day, 2)
 end
+
+
+end # module
