@@ -5,5 +5,5 @@ Solutions of annual coding challenge https://adventofcode.com/ written in Julia.
 Benchmarks
  Day │ part1_time  part2_time  part1_memory  part2_memory
 ─────┼────────────────────────────────────────────────────
-   1 │ 122.200 μs  64.550 ms   317.61 KiB    142.47 MiB
-   2 │ 256.499 μs  14.199 μs   597.98 KiB    0 bytes
+   1 │ 85.499 μs   924.900 μs  223.25 KiB    2.51 MiB
+   2 │ 30.399 μs   14.199 μs   16 bytes      0 bytes
