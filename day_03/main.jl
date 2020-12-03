@@ -9,22 +9,26 @@ const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 data = cur_day |> read_input |> x->replace(x, "."=>"0") |> x->replace(x, "#"=>"1") |>
     read_lines .|> collect .|> (x->parse.(Int, x)) |> x->hcat(x...)
 
-function part1()
+function check_trees_slope(x_diff, y_diff)
     x = 1
     y = 1
     trees = data[y, x]
     w, h = size(data)
     while x < h
-        x += 1
-        y += 3
+        x += x_diff
+        y += y_diff
         y = y > w ? y % w : y
         trees += data[y, x]
     end
     trees
 end
 
+function part1()
+    check_trees_slope(1, 3)
+end
+
 function part2()
-    data
+    check_trees_slope(1, 1) * check_trees_slope(1, 3) * check_trees_slope(1, 5) * check_trees_slope(1, 7) * check_trees_slope(2, 1)
 end
 
 
