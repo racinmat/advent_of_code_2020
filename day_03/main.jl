@@ -30,7 +30,6 @@ end
 
 end # module
 
-Day03.data
 if false
 println(Day03.part1())
 Day03.submit(Day03.part1(), Day03.cur_day, 1)

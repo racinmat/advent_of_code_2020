@@ -37,12 +37,7 @@ end # module
 
 if false
 println(Day01.part1())
-submit(Day01.part1(), Day01.cur_day, 1)
+Day01.submit(Day01.part1(), Day01.cur_day, 1)
 println(Day01.part2())
-submit(Day01.part2(), Day01.cur_day, 2)
+Day01.submit(Day01.part2(), Day01.cur_day, 2)
 end
-Day01.data |> minimum
-Day01.data |> maximum
-(Day01.data |> maximum) - (Day01.data |> minimum)
-filter(<=(2020 - (Day01.data |> minimum)), Day01.data)
-2020 - (Day01.data |> minimum)

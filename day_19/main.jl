@@ -20,7 +20,7 @@ end # module
 
 if false
 println(Day19.part1())
-submit(Day19.part1(), Day19.cur_day, 1)
+Day19.submit(Day19.part1(), Day19.cur_day, 1)
 println(Day19.part2())
-submit(Day19.part2(), Day19.cur_day, 2)
+Day19.submit(Day19.part2(), Day19.cur_day, 2)
 end
