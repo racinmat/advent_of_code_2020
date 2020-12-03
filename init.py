@@ -28,8 +28,8 @@ end # module
 
 if false
 println(Day{i:02d}.part1())
-submit(Day{i:02d}.part1(), Day{i:02d}.cur_day, 1)
+Day{i:02d}.submit(Day{i:02d}.part1(), Day{i:02d}.cur_day, 1)
 println(Day{i:02d}.part2())
-submit(Day{i:02d}.part2(), Day{i:02d}.cur_day, 2)
+Day{i:02d}.submit(Day{i:02d}.part2(), Day{i:02d}.cur_day, 2)
 end
 """)
