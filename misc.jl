@@ -1,6 +1,6 @@
 using DrWatson
 quickactivate(@__DIR__)
-using Pkg
+using Pkg, Printf
 
 
 # if Sys.iswindows()
@@ -31,14 +31,14 @@ read_numbers(data::AbstractString, delim='\n') = parse.(Int, read_lines(data, de
 read_number(data::AbstractString) = parse(Int, data)
 
 function test_input(day::Int)
-	data = open(joinpath("day_$day", "test_input.txt")) do f
+	data = open(joinpath(@sprintf("day_%02d", day), "test_input.txt")) do f
 		read(f, String)
 	end
 	data
 end
 
 function read_file(day::Int, filename)
-	data = open(joinpath("day_$day", filename)) do f
+	data = open(joinpath(@sprintf("day_%02d", day), filename)) do f
 		read(f, String)
 	end
 	data
