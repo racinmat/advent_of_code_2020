@@ -23,10 +23,10 @@ function part1()
 end
 
 function part2()
-    seats = make_grid()
-    min_val = minimum(occupied)
-    max_val = maximum(occupied)
-    first(setdiff(min_val:max_val, seats[:]))
+    seats = make_grid()[:]
+    min_val = minimum(seats)
+    max_val = maximum(seats)
+    first(setdiff(min_val:max_val, seats))
 end
 
 
