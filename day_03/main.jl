@@ -5,11 +5,11 @@ quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-# const data = cur_day |> read_input
-data = cur_day |> read_input |> x->replace(x, "."=>"0") |> x->replace(x, "#"=>"1") |>
-    read_lines .|> collect .|> (x->parse.(Int, x)) |> x->hcat(x...)
+const raw_data = cur_day |> read_input
+process_data() = raw_data |> x->replace(x, "."=>"0") |> x->replace(x, "#"=>"1") |>
+                             read_lines .|> collect .|> (x->parse.(Int, x)) |> x->hcat(x...)
 
-function check_trees_slope(x_diff, y_diff)
+function check_trees(data, x_diff, y_diff)
     x = 1
     y = 1
     trees = data[y, x]
@@ -24,11 +24,13 @@ function check_trees_slope(x_diff, y_diff)
 end
 
 function part1()
-    check_trees_slope(1, 3)
+    data = process_data()
+    check_trees(data, 1, 3)
 end
 
 function part2()
-    check_trees_slope(1, 1) * check_trees_slope(1, 3) * check_trees_slope(1, 5) * check_trees_slope(1, 7) * check_trees_slope(2, 1)
+    data = process_data()
+    check_trees(data, 1, 1) * check_trees(data, 1, 3) * check_trees(data, 1, 5) * check_trees(data, 1, 7) * check_trees(data, 2, 1)
 end
 
 

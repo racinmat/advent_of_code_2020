@@ -7,14 +7,17 @@ include(projectdir("misc.jl"))
 str2dict(x) = Dict(x .|> y->split(y, ":"))
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-const data = cur_day |> read_input |> x->read_lines(x, "\n\n") .|> x->split(x, (' ', '\n')) |> str2dict
+const raw_data = cur_day |> read_input
+process_data() = raw_data |> x->read_lines(x, "\n\n") .|> x->split(x, (' ', '\n')) |> str2dict
 
 function part1()
+    data = process_data()
     fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
     (data .|> x->all(haskey.(Ref(x), fields))) |> sum
 end
 
 function part2()
+    data = process_data()
     fields = Dict(
         "byr" => x-> (n = tryparse(Int, x); !isnothing(n) && 1920<=n<=2002),
         "iyr" => x-> (n = tryparse(Int, x); !isnothing(n) && 2010<=n<=2020),

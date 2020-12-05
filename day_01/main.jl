@@ -6,9 +6,11 @@ include(projectdir("misc.jl"))
 
 using Combinatorics
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-const data = cur_day |> read_input |> x->read_numbers(x, '\n')
+const raw_data = cur_day |> read_input
+process_data() = raw_data |> x->read_numbers(x, '\n')
 
 function part1()
+    data = process_data()
     val_min = minimum(data)
     val_max = maximum(data)
     ok_vals = filter(<=(2020 - val_min), data)
@@ -20,6 +22,7 @@ function part1()
 end
 
 function part2()
+    data = process_data()
     sorted_vals = sort(data)
     val_min = sorted_vals[1]
     val_min_2 = sorted_vals[2]

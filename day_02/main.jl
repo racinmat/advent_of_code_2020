@@ -12,9 +12,11 @@ function parse_row(str)
 end
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
-const data = cur_day |> read_input |> read_lines .|> parse_row
+const raw_data = cur_day |> read_input
+process_data() = raw_data |> read_lines .|> parse_row
 
 function part1()
+    data = process_data()
     valid = 0
     for (from, to, char, word) in data
         occurs = mapreduce(==(char), +, word)
@@ -26,6 +28,7 @@ function part1()
 end
 
 function part2()
+    data = process_data()
     valid = 0
     for (from, to, char, word) in data
         if (word[from] == char) ⊻ (word[to] == char)
