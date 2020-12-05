@@ -6,8 +6,8 @@ include(projectdir("misc.jl"))
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
-process_data() = raw_data |> x->replace(x, "."=>"0") |> x->replace(x, "#"=>"1") |>
-                             read_lines .|> collect .|> (x->parse.(Int, x)) |> x->hcat(x...)
+process_data() = raw_data |> replace_chars("."=>"0", "#"=>"1") |>
+    read_lines .|> collect .|> (x->parse.(Int, x)) |> x->hcat(x...)
 
 function check_trees(data, x_diff, y_diff)
     x = 1
