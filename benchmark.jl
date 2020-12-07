@@ -3,7 +3,7 @@ quickactivate(@__DIR__)
 using BenchmarkTools, ProgressMeter, Printf, Dates, Pkg, Latexify
 import DataFrames: DataFrame
 
-max_day = 5
+max_day = 7
 
 for day = 1:max_day
     include(@sprintf("day_%02d/main.jl", day))
