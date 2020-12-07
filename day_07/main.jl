@@ -24,21 +24,21 @@ function parse_row(str)
 end
 
 function make_vertices(data)
-    vertex_names = collect(keys(data))
-    g = SimpleDiGraph(length(data))
-    mg = MetaDiGraph(g)
-    for (i, v_name) in enumerate(vertex_names)
-        set_indexing_prop!(mg, i, :name, v_name)
+    g = MetaDiGraph(SimpleDiGraph(length(data)))
+    for (i, v_name) in enumerate(keys(data))
+        set_indexing_prop!(g, i, :name, v_name)
     end
-    mg
+    g
 end
 
 function data2graph(data)
     mg = make_vertices(data)
     for (v_from, vs_to) in data
         for (v_to, e_num) in vs_to
-            add_edge!(mg, mg[v_from, :name], mg[v_to, :name])
-            set_prop!(mg, mg[v_from, :name], mg[v_to, :name], :num, e_num)
+            idx_from = mg[v_from, :name]
+            idx_to = mg[v_to, :name]
+            add_edge!(mg, idx_from, idx_to)
+            set_prop!(mg, idx_from, idx_to, :num, e_num)
         end
     end
     mg
@@ -49,7 +49,7 @@ const raw_data = cur_day |> read_input
 process_data() = raw_data .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 # v_from, vs_to = collect(data)[1]
-test_data = cur_day |> x->read_file(x, "test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
+# test_data = cur_day |> x->read_file(x, "test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 function part1()
     data = process_data()
