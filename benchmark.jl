@@ -42,6 +42,5 @@ end
 df = benchmarkAll()
 
 print(latexify(df, env=:mdtable, latex=false, side=1:max_day))
-df = benchmark(day=2)
-df = benchmark(day=4)
-print(latexify(df, env=:mdtable, latex=false, side=4))
+df = benchmark(day=7)
+print(latexify(df, env=:mdtable, latex=false, side=7))

@@ -54,11 +54,22 @@ process_data() = raw_data .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 function part1()
     data = process_data()
     # data = test_data
-    g = reverse(data2graph(data))
+    g = data2graph(data)
     target_bag = "shiny gold"
-
-    res = bfs_tree(g, g[target_bag, :name])
-    edges(res) .|> dst |> length
+    # no need to revert the graph, if you use inneighbors
+    n = nv(g)
+    visited = falses(n)
+    s = g[target_bag, :name]
+    open_nodes = [s]
+    @inbounds while !isempty(open_nodes)
+        cur_node = pop!(open_nodes)
+        @inbounds for n in inneighbors(g, cur_node)
+            visited[n] && continue
+            push!(open_nodes, n)
+            visited[n] = true
+        end
+    end
+    sum(visited)
 end
 
 function part2()
