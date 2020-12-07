@@ -44,51 +44,40 @@ function data2graph(data)
     mg
 end
 
-function data2rev_graph(data)
-    mg = make_vertices(data)
-    for (v_from, vs_to) in data
-        for (v_to, e_num) in vs_to
-            add_edge!(mg, mg[v_to, :name], mg[v_from, :name])
-            set_prop!(mg, mg[v_to, :name], mg[v_from, :name], :num, e_num)
-        end
-    end
-    mg
-end
-
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
 process_data() = raw_data .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 # v_from, vs_to = collect(data)[1]
-# test_data = cur_day |> x->read_file(x, "test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
+test_data = cur_day |> x->read_file(x, "test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 function part1()
     data = process_data()
     # data = test_data
-    rev_mg = data2rev_graph(data)
+    g = reverse(data2graph(data))
     target_bag = "shiny gold"
 
-    res = bfs_tree(rev_mg, rev_mg[target_bag, :name])
+    res = bfs_tree(g, g[target_bag, :name])
     edges(res) .|> dst |> length
 end
 
 function part2()
     data = process_data()
-    mg = data2graph(data)
+    g = data2graph(data)
     target_bag = "shiny gold"
-
-    open_nodes = Int[]
-    res = dfs_tree(mg, mg[target_bag, :name])
-    neighbors(res, mg[target_bag, :name])
-    outneighbors(res, mg[target_bag, :name])
-    outneighbors(mg, mg[target_bag, :name])
-
-    push!(open_nodes, mg[target_bag, :name])
+    open_nodes = Tuple{Int, Int}[]
+    total_bags = -1
+    push!(open_nodes, (g[target_bag, :name], 1))
     while length(open_nodes) > 0
-        cur_node = pop!(open_nodes)
-        edges(res, cur_node)
+        cur_node, path_bags = pop!(open_nodes)
+        for n in outneighbors(g, cur_node)
+            num = get_prop(g, cur_node, n, :num)
+            n_path_bags = path_bags * num
+            push!(open_nodes, (n, n_path_bags))
+        end
+        total_bags += path_bags
     end
-    edges(res) .|> dst |> length
+    total_bags
 end
 
 
