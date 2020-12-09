@@ -37,7 +37,7 @@ function part2()
         @inbounds for k in 1:length(data)-l
             a_range = @view data[k:k+l]
             if sum(a_range) == the_sum
-                return minimum(a_range) + maximum(a_range)
+                return sum(extrema(a_range))
             end
         end
     end
