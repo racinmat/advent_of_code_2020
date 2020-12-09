@@ -12,15 +12,21 @@ process_data() = raw_data |> read_numbers
 function part1()
     data = process_data()
     preamble_size = 25
-    k = preamble_size + 1
     @inbounds for k in preamble_size+1:length(data)
         val = data[k]
         preamble = data[k-preamble_size:k-1]
-        # todo: maybe make it faster by somehow recycling consucutive combinations so I remove only some of them and add some other
-        # all_combs = [[preamble[i]+preamble[j] for j in 1:25 if j != i] for i in 1:25]
-        if val ∉ unique(sum.(combinations(preamble, 2)))
-            return val
+        found = false
+        # this cycle is ~58 times faster than val ∉ sum.(combinations(preamble, 2))
+        for i in 1:25
+            for j in i+1:25
+                if preamble[i]+preamble[j] == val
+                    found = true
+                    break
+                end
+            end
+            found && break
         end
+        !found && return val
     end
 end
 

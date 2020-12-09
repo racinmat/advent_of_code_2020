@@ -16,7 +16,7 @@ const raw_data = cur_day |> read_input
 process_data() = raw_data |> read_lines .|> parse_row
 test_data = cur_day |> x->read_file(x, "test_input.txt") |> read_lines .|> parse_row
 
-function data_loops(data)
+function data_loops(data, flip_index=0)
     accumulator = 0
     row = 1
     num_rows = length(data)
@@ -24,6 +24,13 @@ function data_loops(data)
     last_jmp = 0
     @inbounds while row <= num_rows && !row_ran[row]
         instr, val = data[row]
+        if row == flip_index
+            if instr == "nop"
+                instr = "jmp"
+            elseif instr == "jmp"
+                instr = "nop"
+            end
+        end
         row_ran[row] = true
         if instr == "nop"
             row += 1
@@ -46,23 +53,14 @@ function part1()
 end
 
 function part2()
-    orig_data = process_data()
+    data = process_data()
     # orig_data = test_data
-    accumulator, looped, last_jmp = data_loops(orig_data)
-    jumps = findall(x->x[1] == "jmp", orig_data)
+    accumulator, looped, last_jmp = data_loops(data)
+    jumps = findall(x->x[1] ∈ ("jmp", "nop"), data)
     nth_jump = 0
-    # tried_jumps = Int[]
     while looped
-        # todo: maybe optimize it by figuring out where I looped last time and skipping it, or maybe skipping only jumps backwards?
         nth_jump += 1
-        # if last_jmp > jumps[nth_jump]
-        #     nth_jump = findfirst(==(last_jmp), jumps)
-        # end
-        data = deepcopy(orig_data)
-        data[jumps[nth_jump]][1] = "nop"
-        # data[last_jmp][1] = "nop"
-        accumulator, looped, last_jmp = data_loops(data)
-        # push!(tried_jumps)
+        accumulator, looped, last_jmp = data_loops(data, jumps[nth_jump])
     end
     accumulator
 end
