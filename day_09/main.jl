@@ -14,7 +14,7 @@ function part1()
     preamble_size = 25
     @inbounds for k in preamble_size+1:length(data)
         val = data[k]
-        preamble = data[k-preamble_size:k-1]
+        preamble = @view data[k-preamble_size:k-1]
         found = false
         # this cycle is ~58 times faster than val ∉ sum.(combinations(preamble, 2))
         for i in 1:25
@@ -35,7 +35,7 @@ function part2()
     the_sum = part1()
     for l in 2:length(data)
         @inbounds for k in 1:length(data)-l
-            a_range = data[k:k+l]
+            a_range = @view data[k:k+l]
             if sum(a_range) == the_sum
                 return minimum(a_range) + maximum(a_range)
             end
