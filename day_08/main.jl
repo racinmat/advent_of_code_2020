@@ -21,7 +21,8 @@ function data_loops(data)
     row = 1
     num_rows = length(data)
     row_ran = falses(num_rows)
-    @inbounds while !row_ran[row] && row <= num_rows
+    last_jmp = 0
+    @inbounds while row <= num_rows && !row_ran[row]
         instr, val = data[row]
         row_ran[row] = true
         if instr == "nop"
@@ -30,32 +31,38 @@ function data_loops(data)
             accumulator += val
             row += 1
         elseif instr == "jmp"
+            last_jmp = row
             row += val
         end
     end
-    accumulator, row <= num_rows
+    accumulator, row <= num_rows, last_jmp
 end
 
 function part1()
     data = process_data()
     # data = test_data
-    accumulator, looped = data_loops(data)
+    accumulator, looped, last_jmp = data_loops(data)
     accumulator
 end
 
 function part2()
     orig_data = process_data()
     # orig_data = test_data
-    accumulator, looped = data_loops(orig_data)
+    accumulator, looped, last_jmp = data_loops(orig_data)
     jumps = findall(x->x[1] == "jmp", orig_data)
-    findall(x->length(x) ==2, orig_data)
-    orig_data[2][1]
     nth_jump = 0
+    # tried_jumps = Int[]
     while looped
+        # todo: maybe optimize it by figuring out where I looped last time and skipping it, or maybe skipping only jumps backwards?
         nth_jump += 1
+        # if last_jmp > jumps[nth_jump]
+        #     nth_jump = findfirst(==(last_jmp), jumps)
+        # end
         data = deepcopy(orig_data)
         data[jumps[nth_jump]][1] = "nop"
-        accumulator, looped = data_loops(data)
+        # data[last_jmp][1] = "nop"
+        accumulator, looped, last_jmp = data_loops(data)
+        # push!(tried_jumps)
     end
     accumulator
 end
