@@ -14,7 +14,7 @@ end
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
 process_data() = raw_data |> read_lines .|> parse_row
-test_data = cur_day |> x->read_file(x, "test_input.txt") |> read_lines .|> parse_row
+test_data = cur_day |> read_file("test_input.txt") |> read_lines .|> parse_row
 
 function data_loops(data, flip_index=0)
     accumulator = 0

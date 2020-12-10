@@ -44,5 +44,7 @@ function read_file(day::Int, filename)
 	data
 end
 
+read_file(filename::AbstractString) = day->read_file(day, filename)
+
 replace_chars(str::AbstractString, repls::Pair...) = foldl(replace, collect(repls), init=str)
 replace_chars(repls::Pair...) = x->replace_chars(x, repls...)
