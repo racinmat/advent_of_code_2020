@@ -49,7 +49,7 @@ const raw_data = cur_day |> read_input
 process_data() = raw_data .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 # v_from, vs_to = collect(data)[1]
-# test_data = cur_day |> x->read_file(x, "test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
+# test_data = cur_day |> read_file("test_input.txt") .|> x->read_lines(x, "\n") .|> parse_row |> Dict
 
 function part1()
     data = process_data()
