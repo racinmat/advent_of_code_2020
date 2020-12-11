@@ -92,8 +92,8 @@ function do_step_v2(data)
 end
 
 function do_step_v2!(data, new_data)
-    @inbounds @simd for i in findall(data .!= 0)
-        @timeit to "sitting8dirs" num_sits = sitting8dirs(data, i)
+    @inbounds Threads.@threads for i in findall(data .!= 0)
+        #=@timeit to "sitting8dirs"=# num_sits = sitting8dirs(data, i)
         if num_sits >= 5 && data[i] == 10
             new_data[i] = 1
         elseif num_sits == 0 && data[i] == 1
@@ -106,9 +106,9 @@ function find_equilibrium(data, step_fun)
     new_data = copy(data)
     while true
         # print_mat(data)
-        @timeit to "step_fun" step_fun(data, new_data)
+        #=@timeit to "step_fun"=#  step_fun(data, new_data)
         # print_mat(new_data)
-        if @timeit to "data == new_data" data == new_data
+        if #=@timeit to "data == new_data"=# data == new_data
             return data
         end
         data = copy(new_data)
@@ -116,18 +116,18 @@ function find_equilibrium(data, step_fun)
 end
 
 function part1()
-    @timeit to "process_data" data = process_data()
+    #=@timeit to "process_data"=#  data = process_data()
     # data = test_data
     data *= 1  # the goal is to have L=1 and #=10
-    @timeit to "find_equilibrium" data = find_equilibrium(data, do_step_v1!)
+    #=@timeit to "find_equilibrium"=#  data = find_equilibrium(data, do_step_v1!)
     sum(data .== 10)
 end
 
 function part2()
-    @timeit to "process_data" data = process_data()
+    #=@timeit to "process_data"=#  data = process_data()
     # data = test_data
     data *= 1  # the goal is to have L=1 and #=10
-    @timeit to "find_equilibrium" data = find_equilibrium(data, do_step_v2!)
+    #=@timeit to "find_equilibrium"=#  data = find_equilibrium(data, do_step_v2!)
     sum(data .== 10)
 end
 

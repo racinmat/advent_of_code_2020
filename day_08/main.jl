@@ -4,6 +4,7 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
+using ThreadsX
 function parse_row(str)
     parts = split(str, ", ")
     start = popfirst!(parts)
@@ -48,20 +49,17 @@ end
 function part1()
     data = process_data()
     # data = test_data
-    accumulator, looped, last_jmp = data_loops(data)
+    accumulator, looped, last_jmp = data_loops(data, 0)
     accumulator
 end
 
 function part2()
     data = process_data()
     # orig_data = test_data
-    accumulator, looped, last_jmp = data_loops(data)
-    jumps = findall(x->x[1] ∈ ("jmp", "nop"), data)
-    nth_jump = 0
-    while looped
-        nth_jump += 1
-        accumulator, looped, last_jmp = data_loops(data, jumps[nth_jump])
-    end
+    row_ran = falses(length(data))
+    jumps = ThreadsX.findall(x->x[1] ∈ ("jmp", "nop"), data)
+    j = ThreadsX.findfirst(i->!data_loops(data, i)[2], jumps)
+    accumulator, looped, last_jmp = data_loops(data, jumps[j])
     accumulator
 end
 
