@@ -38,9 +38,9 @@ function arrs8dirs(A, i::CartesianIndex)
     m,n = size(A)
     k, l = i.I
 
-    dir_n = A[begin:k-1,l]
+    dir_n = A[k-1:-1:begin,l]
     dir_s = A[k+1:end,l]
-    dir_w = A[k,begin:l-1]
+    dir_w = A[k,l-1:-1:begin]
     dir_e = A[k,l+1:end]
 
     dir_nw = idxs2vals(A, k-1:-1:1+k-min(k,l), l-1:-1:1+l-min(k,l))
@@ -73,9 +73,9 @@ function sitting8dirs(A, i::CartesianIndex)
     k, l = i.I
 
     sittings = 0
-    sittings += is1st_sitting(A[begin:k-1,l])
+    sittings += is1st_sitting(A[k-1:-1:begin,l])
     sittings += is1st_sitting(A[k+1:end,l])
-    sittings += is1st_sitting(A[k,begin:l-1])
+    sittings += is1st_sitting(A[k,l-1:-1:begin])
     sittings += is1st_sitting(A[k,l+1:end])
     sittings += is1st_sitting(A, k-1:-1:1+k-min(k,l), l-1:-1:1+l-min(k,l))
     sittings += is1st_sitting(A, k-1:-1:k-min(k,n-l), l+1:1:l+1+min(k,n-l))
@@ -86,21 +86,20 @@ end
 
 A = reshape(1:50, 10, 5)
 i = CartesianIndex(10, 3)
-i = CartesianIndex(1, 1)
+i = CartesianIndex(1, 4)
+A=data
 for i in CartesianIndices(A)
     arrs8dirs(A,i)
 end
 function do_step_v2(data)
     new_data = copy(data)
-    res = imfilter(new_data, mat, Fill(0, mat))
-    i = CartesianIndices(new_data)[80]
-    A=data
-    new_data[(res .< 10) .& (data .!= 0)] .= 10
     @inbounds for i in CartesianIndices(data)
         data[i] == 0 && continue
         num_sits = sitting8dirs(data, i)
-        if num_sits >= 5
+        if num_sits >= 5 && data[i] == 10
             new_data[i] = 1
+        elseif num_sits == 0 && data[i] == 1
+            new_data[i] = 10
         end
     end
     new_data
