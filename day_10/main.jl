@@ -20,14 +20,11 @@ end
 
 function count_sequence_lengths(arr)
     one_ntuples = DefaultDict{Int, Int}(0)
-    is_1 = false
     num_1s = 0
     for i in arr
         if i == 1
-            is_1 = true
             num_1s += 1
         else
-            is_1 = false
             one_ntuples[num_1s] += 1
             num_1s = 0
         end
