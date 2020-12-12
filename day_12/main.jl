@@ -32,10 +32,10 @@ idx(::East) = 1
 idx(::South) = 2
 idx(::West) = 3
 
-shift_left(rot, num) = directions_clockwise[mod(idx(rot)-num÷90, length(directions_clockwise))]
-shift_right(rot, num) = directions_clockwise[mod(idx(rot)+num÷90, length(directions_clockwise))]
+shift_left(rot, num) = @inbounds directions_clockwise[mod(idx(rot)-num÷90, length(directions_clockwise))]
+shift_right(rot, num) = @inbounds directions_clockwise[mod(idx(rot)+num÷90, length(directions_clockwise))]
 
-parse_row(str) = translation[str[1]], parse(Int, str[2:end])
+parse_row(str) = @inbounds translation[str[1]], parse(Int, str[2:end])
 # parse_row(str) = str[1], parse(Int, str[2:end])
 
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
@@ -47,12 +47,12 @@ const L = [0 -1; 1 0]
 const R = [0 1; -1 0]
 
 const directions = Dict(North()=>[-1,0], East()=>[0,1], South()=>[1,0], West()=>[0,-1])
-process(pos, rot, d::Direction, i) = pos + directions[d].*i, rot
+process(pos, rot, d::Direction, i) = @inbounds pos + directions[d].*i, rot
 process(pos, rot, d::Forward, i) = process(pos, rot, rot, i)
 process(pos, rot, d::RotateLeft, i) = pos, shift_left(rot, i)
 process(pos, rot, d::RotateRight, i) = pos, shift_right(rot, i)
 
-process2(pos, wpos, d::Direction, i) = pos, wpos + directions[d].*i
+process2(pos, wpos, d::Direction, i) = @inbounds pos, wpos + directions[d].*i
 process2(pos, wpos, d::Forward, i) = pos + wpos.*i, wpos
 process2(pos, wpos, d::RotateLeft, i) = pos, L^(i÷90) * wpos
 process2(pos, wpos, d::RotateRight, i) = pos, R^(i÷90) * wpos
