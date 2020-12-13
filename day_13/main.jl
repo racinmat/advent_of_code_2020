@@ -65,35 +65,17 @@ function part2()
     ok_buses = Dict(k-1=>v for (k, v) in enumerate(buses) if !isnothing(v))
     # sorted_idxs = sort(collect(keys(ok_buses)))
     # period_combined, phase_combined = combine_buses(ok_buses)
-    period_combined, phase_combined = combine_buses(filter(kv->kv[1]<50, ok_buses))
+    # for some reason it gives me too high time for all buses, combining these approaches
+    period_combined, phase_combined = combine_buses(filter(kv->kv[1]<65, ok_buses))
     group_meets = find_pair_meets(period_combined, phase_combined)
-    # # x = ok_buses[sorted_idxs[1]]
-    # # x = time_12_fit
-    # # x = time_123_fit
-    # x = time_1234_fit
     x = group_meets
-    next_log = 0
+    # next_log = 0
     while buses_not_fit(x, ok_buses)
-        # x += ok_buses[0]
-        # x += period_12
-        # x += period_123
-        # x += period_1234
         x += period_combined
-        if x > next_log
-            next_log += 1_000_000_000
-            @info Dates.now() x
-        end
     end
     x
 end
 
-# todo: figure it out, try on more test inputs, combine iterative approach and this one
-# wrong answer: 578230687890668
-# That's not the right answer; your answer is too high.  If you're stuck, make sure you're using the full input data; there are also some general tips on the about page, or you can ask for hints on the subreddit.  Please wait one minute before trying
-# again. (You guessed 578230687890668.) [Return to Day 13]
-# 289115343945334 is too low
-# 289_115_343_945_334
-# 578_230_687_890_668
 end # module
 
 if false
@@ -103,8 +85,3 @@ println(Day13.part2())
 Day13.submit(Day13.part2(), Day13.cur_day, 2)
 Day13.@btime Day13.part2()
 end
-# benchmark on test input
-# native:               11.535 ms (152727 allocations: 2.34 MiB)
-# merged buses 1,2:     621.500 μs (11857 allocations: 198.31 KiB)
-# merged buses 1,2,3:   26.901 μs (318 allocations: 18.03 KiB)
-# merged buses 1,2,3,4: 16.200 μs (129 allocations: 15.09 KiB)
