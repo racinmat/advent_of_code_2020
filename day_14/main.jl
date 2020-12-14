@@ -4,6 +4,7 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
+using Memoize
 const mapping = Dict('0'=>false, '1'=>true, 'X'=>missing)
 
 function parse_row(x)
@@ -47,13 +48,15 @@ end
 
 sum_floats(pos, floatings) = sum(p*2^(f-1) for (p, f) in zip(pos, floatings))
 
+@memoize function get_pair_combinations(i)
+    collect(Iterators.product(fill(0:1,i)...))[:]
+end
+
 function part2()
     data = process_data()
     # data = test_data
     memory = Dict{Int, Int}()
     cur_mask = nothing
-    # todo: rewrite it all, I must write same thing to multiple places, not summing them
-    i, j = data[1]
     i, j = data[2]
     for (i, j) in data
         if i == "mask"
@@ -61,11 +64,11 @@ function part2()
         elseif i == "mem"
             idx, val = j
             addresses = merge_with_mask2.(dec2bin(idx), cur_mask)
-            floatings = findall(ismissing, reverse(addresses))
-            pos = collect(Iterators.product(fill(0:1,length(floatings))...))[:][4]
-            base_num = sum(2 .^ (findall(isequal(true), reverse(addresses)).-1))
-            all_combs = collect(Iterators.product(fill(0:1,length(floatings))...))[:]
-            for pos in all_combs
+            addresses_rev = reverse(addresses)
+            floatings = findall(ismissing, addresses_rev)
+            base_num = sum(2 .^ (findall(isequal(true), addresses_rev).-1))
+            all_combs = get_pair_combinations(length(floatings))
+            @simd for pos in all_combs
                 idx_i = sum_floats(pos, floatings) + base_num
                 memory[idx_i] = val
             end
