@@ -49,8 +49,8 @@ sum_floats(pos, floatings) = sum(p*2^(f-1) for (p, f) in zip(pos, floatings))
 
 function part2()
     data = process_data()
-    data = test_data
-    memory = Dict{Int, Vector}()
+    # data = test_data
+    memory = Dict{Int, Int}()
     cur_mask = nothing
     # todo: rewrite it all, I must write same thing to multiple places, not summing them
     i, j = data[1]
@@ -60,19 +60,15 @@ function part2()
             cur_mask = j
         elseif i == "mem"
             idx, val = j
-            # todo: fix
-            memory[idx] = merge_with_mask2.(dec2bin(val), cur_mask)
-        end
-    end
-    total = 0
-    i = collect(values(memory))[2]
-    for i in values(memory)
-        floatings = findall(ismissing, reverse(i))
-        pos = collect(Iterators.product(fill(0:1,length(floatings))...))[:][4]
-        base_num = sum(2 .^ (findall(isequal(true), reverse(i)).-1))
-        all_combs = collect(Iterators.product(fill(0:1,length(floatings))...))[:]
-        sum(sum_floats(pos, floatings) for pos in all_combs) + length(all_combs) * base_num
-
+            addresses = merge_with_mask2.(dec2bin(idx), cur_mask)
+            floatings = findall(ismissing, reverse(addresses))
+            pos = collect(Iterators.product(fill(0:1,length(floatings))...))[:][4]
+            base_num = sum(2 .^ (findall(isequal(true), reverse(addresses)).-1))
+            all_combs = collect(Iterators.product(fill(0:1,length(floatings))...))[:]
+            for pos in all_combs
+                idx_i = sum_floats(pos, floatings) + base_num
+                memory[idx_i] = val
+            end
         end
     end
     sum(values(memory))
