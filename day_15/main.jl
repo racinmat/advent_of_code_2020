@@ -4,7 +4,6 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
-using DataStructures
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
 process_data() = raw_data |> x->read_numbers(x, ",")
@@ -15,10 +14,10 @@ function play_game(data, n_turns)
     cur_number = last(data)
     turn = length(data)
     @inbounds while turn < n_turns
-        if cur_number ∈ keys(last_occur)
-            next_number = turn - last_occur[cur_number]
+        next_number = if cur_number ∈ keys(last_occur)
+             turn - last_occur[cur_number]
         else
-            next_number = 0
+            0
         end
         last_occur[cur_number] = turn
         cur_number = next_number
