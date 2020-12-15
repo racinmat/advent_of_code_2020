@@ -11,33 +11,20 @@ process_data() = raw_data |> x->read_numbers(x, ",")
 test_data = cur_day |> read_file("test_input.txt") |> x->read_numbers(x, ",")
 
 function play_game(data, n_turns)
-    turn = 0
-    all_occurs = Set{Int}()
-    last_occur = Dict{Int, Int}()
-    penultimate_occur = Dict{Int, Int}()
-    cur_number = 0
-    was_seen_first_time = false
+    last_occur = Dict(n=>i for (i, n) in enumerate(data[1:end-1]))
+    all_occurs = Set(keys(last_occur))
+    cur_number = last(data)
+    turn = length(data)
     @inbounds while turn < n_turns
-        turn += 1
-        if turn <= length(data)
-            cur_number = data[turn]
+        if cur_number ∈ all_occurs
+            next_number = turn - last_occur[cur_number]
         else
-            if was_seen_first_time
-                cur_number = 0
-            else
-                cur_number = last_occur[cur_number] - penultimate_occur[cur_number]
-            end
-        end
-        if haskey(last_occur, cur_number)
-            penultimate_occur[cur_number] = last_occur[cur_number]
+            push!(all_occurs, cur_number)
+            next_number = 0
         end
         last_occur[cur_number] = turn
-        if cur_number ∉ all_occurs
-            push!(all_occurs, cur_number)
-            was_seen_first_time = true
-        else
-            was_seen_first_time = false
-        end
+        cur_number = next_number
+        turn += 1
     end
     cur_number
 end
