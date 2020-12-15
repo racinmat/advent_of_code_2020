@@ -1,8 +1,10 @@
-import java.io.File
-import java.util.stream.IntStream.range
+//import java.io.File
+//import java.util.stream.IntStream.range
 import kotlin.system.measureTimeMillis
 
-val raw_data = File("C:\\Projects\\others\\advent_of_code_2020\\day_15\\input.txt").readLines().first()
+//since I can't figure out reasonably simple way to read file in kotlin native, I'll hardcode the input instead
+//val raw_data = File("C:\\Projects\\others\\advent_of_code_2020\\day_15\\input.txt").readLines().first()
+val raw_data = "0,13,16,17,1,10,6"
 fun process_data(): Array<Int> = raw_data.split(',').map { it.toInt() }.toTypedArray()
 fun play_game(data: Array<Int>, n_turns: Int): Int {
     val last_occur = data.dropLast(1).mapIndexed { i, n -> n to i+1 }.toMap().toMutableMap()
@@ -34,12 +36,12 @@ fun part2(): Int {
 fun main() {
     println(part1())
     val time1 = measureTimeMillis {
-        range(0, 5).forEach{part1()}
+        for (i in 1..5) part1()
     }
     println("5 runs, average millis: ${time1/5}")
     println(part2())
     val time2 = measureTimeMillis {
-        range(0, 5).forEach{part2()}
+        for (i in 1..5) part2()
     }
     println("5 runs, average millis: ${time2/5}")
 
