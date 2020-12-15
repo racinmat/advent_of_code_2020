@@ -31,16 +31,6 @@ fun part2(): Int {
     return play_game(data, 30_000_000)
 }
 
-/*
-
-
-function part1()
-data = process_data()
-# data = test_data
-play_game(data, 2020)
-end
-
-*/
 fun main() {
     println(part1())
     val time1 = measureTimeMillis {
