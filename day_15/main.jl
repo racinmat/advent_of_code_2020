@@ -12,14 +12,12 @@ test_data = cur_day |> read_file("test_input.txt") |> x->read_numbers(x, ",")
 
 function play_game(data, n_turns)
     last_occur = Dict(n=>i for (i, n) in enumerate(data[1:end-1]))
-    all_occurs = Set(keys(last_occur))
     cur_number = last(data)
     turn = length(data)
     @inbounds while turn < n_turns
-        if cur_number ∈ all_occurs
+        if cur_number ∈ keys(last_occur)
             next_number = turn - last_occur[cur_number]
         else
-            push!(all_occurs, cur_number)
             next_number = 0
         end
         last_occur[cur_number] = turn
