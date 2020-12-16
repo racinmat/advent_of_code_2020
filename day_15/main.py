@@ -1,5 +1,7 @@
 import time
 from numba import jit
+from numba.core import types
+from numba.typed import Dict
 
 with open('input.txt', 'r') as file:
     raw_data = file.read()
@@ -13,7 +15,7 @@ def play_game(data, n_turns):
     cur_number = data[-1]
     turn = len(data)
     while turn < n_turns:
-        if cur_number in last_occur.keys():
+        if cur_number in last_occur:
             next_number = turn - last_occur[cur_number]
         else:
             next_number = 0
@@ -27,13 +29,17 @@ def play_game(data, n_turns):
 @jit(nopython=True)
 def play_game_numba(data, n_turns):
     # dict comprehension is not supported in numba, see https://github.com/numba/numba/issues/5135
-    last_occur = dict()
+    last_occur = Dict.empty(
+        key_type=types.int64,
+        value_type=types.int64,
+    )
     for i, n in enumerate(data[:-1]):
         last_occur[n] = i + 1
     cur_number = data[-1]
     turn = len(data)
     while turn < n_turns:
-        if cur_number in last_occur.keys():
+        last_occur.keys()
+        if cur_number in last_occur:
             next_number = turn - last_occur[cur_number]
         else:
             next_number = 0
