@@ -4,16 +4,42 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
+using Intervals, Base.Iterators
+
+function parse_departure(str)
+    m = match(r"([\w ]+): (\d+)-(\d+) or (\d+)-(\d+)", str)
+    ints = parse.(Int, [m[2], m[3], m[4], m[5]])
+    m[1], Interval{Closed, Closed}(ints[1:2]...), Interval{Closed, Closed}(ints[3:4]...)
+end
+
+function parse_input(departures, my_ticket, other_tickets)
+    conditions = departures |> read_lines .|> parse_departure
+    my_ticket_nums = read_lines(my_ticket)[2] |> x->read_numbers(x, ",")
+    other_tickets_nums = read_lines(other_tickets)[2:end] .|> x->read_numbers(x, ",")
+    conditions, my_ticket_nums, other_tickets_nums
+end
+
 const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
-process_data() = raw_data
+process_data() = raw_data |> x->split(x, "\n\n") |> x->parse_input(x...)
+test_data = cur_day |>read_file("test_input.txt") |> x->split(x, "\n\n") |> x->parse_input(x...)
 
 function part1()
     data = process_data()
+    # data = test_data
+    conditions, my_ticket_nums, other_tickets_nums = data
+    all_nums = other_tickets_nums |> flatten |> collect
+    sum(filter(i->!any(c->any(i .∈ c[2:3]), conditions), all_nums))
 end
 
 function part2()
     data = process_data()
+    data = test_data
+    conditions, my_ticket_nums, other_tickets_nums = data
+    all_nums = other_tickets_nums
+    valid_tickets = filter(j->all(i->any(c->any(i .∈ c[2:3]), conditions), j), other_tickets_nums)
+    filter(i->!any(c->any(i .∈ c[2:3]), conditions), other_tickets_nums)
+    filter(i->!any(c->any(i .∈ c[2:3]), conditions), other_tickets_nums)
 end
 
 
