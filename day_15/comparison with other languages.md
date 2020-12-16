@@ -48,3 +48,15 @@ part 1: 5 runs, average millis: 0
 31916
 part 2: 5 runs, average millis: 4143
 ```
+
+Python: `python main.py`
+
+output:
+```
+276
+part 1: 5 runs, average millis: 0.0005994796752929688
+31916
+part 2 in numba: 5 runs, average millis: 3.9499990463256838
+31916
+part 2: 5 runs, average millis: 12.827667427062988
+```

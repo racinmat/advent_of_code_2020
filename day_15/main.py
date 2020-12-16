@@ -3,6 +3,8 @@ from numba import jit
 from numba.core import types
 from numba.typed import Dict
 
+from game import play_game_cython
+
 with open('input.txt', 'r') as file:
     raw_data = file.read()
 
@@ -66,6 +68,11 @@ def part2_numba():
     return play_game_numba(data, 30_000_000)
 
 
+def part2_cython():
+    data = process_data()
+    return play_game_cython(data, 30_000_000)
+
+
 if __name__ == '__main__':
     print(part1())
 
@@ -77,6 +84,12 @@ if __name__ == '__main__':
     print(part2_numba())
     start = time.time()
     [part2_numba() for i in range(5)]
+    end = time.time()
+    print(f"part 2 in numba: 5 runs, average millis: {(end - start) / 5}")
+
+    print(part2_cython())
+    start = time.time()
+    [part2_cython() for i in range(5)]
     end = time.time()
     print(f"part 2 in numba: 5 runs, average millis: {(end - start) / 5}")
 
