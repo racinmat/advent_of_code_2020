@@ -49,14 +49,20 @@ part 1: 5 runs, average millis: 0
 part 2: 5 runs, average millis: 4143
 ```
 
-Python: `python main.py`
+Python: 
+
+compile: `python setup.py build_ext --inplace`
+
+run: `python main.py`
 
 output:
 ```
 276
-part 1: 5 runs, average millis: 0.0005994796752929688
+part 1: 5 runs, average millis: 0.0006034374237060547
 31916
-part 2 in numba: 5 runs, average millis: 3.9499990463256838
+part 2 in numba: 5 runs, average millis: 5.403655004501343
 31916
-part 2: 5 runs, average millis: 12.827667427062988
+part 2 in numba: 5 runs, average millis: 10.314926195144654
+31916
+part 2: 5 runs, average millis: 12.426770305633545
 ```
