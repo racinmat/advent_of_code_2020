@@ -7,20 +7,14 @@ import kotlin.system.measureTimeMillis
 val raw_data = "0,13,16,17,1,10,6"
 fun process_data(): Array<Int> = raw_data.split(',').map { it.toInt() }.toTypedArray()
 fun play_game(data: Array<Int>, n_turns: Int): Int {
-    val last_occur = data.dropLast(1).mapIndexed { i, n -> n to i+1 }.toMap().toMutableMap()
-    var cur_number = data.last()
-    var turn = data.size
-    while (turn < n_turns) {
-        var next_number = if (last_occur.containsKey(cur_number)) {
-            turn - last_occur[cur_number]!!
-        } else {
-            0
-        }
-        last_occur[cur_number] = turn
-        cur_number = next_number
-        turn += 1
+    val lastOccur = data.dropLast(1).mapIndexed { i, n -> n to i + 1 }.toMap().toMutableMap()
+    var curNumber = data.last()
+    (data.size until n_turns).forEach { turn ->
+        val nextNumber = turn - (lastOccur[curNumber] ?: turn)
+        lastOccur[curNumber] = turn
+        curNumber = nextNumber
     }
-    return cur_number
+    return curNumber
 }
 
 fun part1(): Int {
@@ -34,15 +28,24 @@ fun part2(): Int {
 }
 
 fun main() {
+    val n_tries = 10
     println(part1())
-    val time1 = measureTimeMillis {
-        for (i in 1..5) part1()
+    var time1 = 0L
+    //val time1 = measureTimeMillis {
+    //    for (i in 1..n_tries) part1()
+    //}
+    repeat(n_tries) {
+        time1 += measureTimeMillis { part1() }
     }
-    println("5 runs, average millis: ${time1/5}")
+    println("part 1: ${n_tries} runs, average millis: ${time1/n_tries}")
     println(part2())
-    val time2 = measureTimeMillis {
-        for (i in 1..5) part2()
+    var time1 = 0L
+    //val time2 = measureTimeMillis {
+    //    for (i in 1..n_tries) part2()
+    //}
+    repeat(n_tries) {
+        time2 += measureTimeMillis { part2() }
     }
-    println("5 runs, average millis: ${time2/5}")
+    println("part 2: ${n_tries} runs, average millis: ${time2/n_tries}")
 
 }

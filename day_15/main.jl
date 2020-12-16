@@ -14,11 +14,7 @@ function play_game(data, n_turns)
     cur_number = last(data)
     turn = length(data)
     @inbounds while turn < n_turns
-        next_number = if cur_number ∈ keys(last_occur)
-             turn - last_occur[cur_number]
-        else
-            0
-        end
+        next_number = cur_number ∈ keys(last_occur) ? turn - last_occur[cur_number] : 0
         last_occur[cur_number] = turn
         cur_number = next_number
         turn += 1

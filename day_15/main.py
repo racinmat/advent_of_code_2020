@@ -1,5 +1,5 @@
 import time
-import timeit
+from numba import jit
 
 with open('input.txt', 'r') as file:
     raw_data = file.read()
@@ -9,7 +9,27 @@ def process_data(): return [int(i) for i in raw_data.split(',')]
 
 
 def play_game(data, n_turns):
-    last_occur = {n: i+1 for i, n in enumerate(data[:-1])}
+    last_occur = {n: i + 1 for i, n in enumerate(data[:-1])}
+    cur_number = data[-1]
+    turn = len(data)
+    while turn < n_turns:
+        if cur_number in last_occur.keys():
+            next_number = turn - last_occur[cur_number]
+        else:
+            next_number = 0
+
+        last_occur[cur_number] = turn
+        cur_number = next_number
+        turn += 1
+    return cur_number
+
+
+@jit(nopython=True)
+def play_game_numba(data, n_turns):
+    # dict comprehension is not supported in numba, see https://github.com/numba/numba/issues/5135
+    last_occur = dict()
+    for i, n in enumerate(data[:-1]):
+        last_occur[n] = i + 1
     cur_number = data[-1]
     turn = len(data)
     while turn < n_turns:
@@ -35,17 +55,28 @@ def part2():
     return play_game(data, 30_000_000)
 
 
+def part2_numba():
+    data = process_data()
+    return play_game_numba(data, 30_000_000)
+
+
 if __name__ == '__main__':
     print(part1())
 
     start = time.time()
-    part1()
+    [part1() for i in range(5)]
     end = time.time()
-    print(f"part 1 took: {end - start}")
+    print(f"part 1: 5 runs, average millis: {(end - start) / 5}")
+
+    print(part2_numba())
+    start = time.time()
+    [part2_numba() for i in range(5)]
+    end = time.time()
+    print(f"part 2 in numba: 5 runs, average millis: {(end - start) / 5}")
 
     print(part2())
     start = time.time()
-    part2()
+    [part2() for i in range(5)]
     end = time.time()
-    print(f"part 2 took: {end - start}")
+    print(f"part 2: 5 runs, average millis: {(end - start) / 5}")
 # todo: try numba or cython
