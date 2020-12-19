@@ -8,7 +8,7 @@ const cur_day = parse(Int, splitdir(@__DIR__)[end][5:end])
 const raw_data = cur_day |> read_input
 process_data() = raw_data |> read_lines
 
-eval_pair(x, y::Char, expr) = eval_pair(x, parse(Int, y), expr)
+eval_pair(x, y::Char, op) = eval_pair(x, parse(Int, y), op)
 function eval_pair(x, y::Number, op)
     if isnothing(x)
         y
@@ -22,7 +22,6 @@ function eval_pair(x, y::Number, op)
 end
 
 function eval_str(str)
-    str
     depth = 0
     depth1start = 0
     depth1end = 0
@@ -36,7 +35,7 @@ function eval_str(str)
             end
         elseif v == ')'
             depth -= 1
-            if depth == 0
+            @inbounds if depth == 0
                 depth1end = i
                 subexpr_val = eval_str(str[depth1start+1:depth1end-1])
                 cur_val = eval_pair(cur_val, subexpr_val, cur_symbol)
@@ -51,23 +50,25 @@ function eval_str(str)
 end
 
 function infix2rpn(s)
-    outputq = []
-    opstack = []
-    infix = split(replace_chars(s, "(" => "( ", ")" => " )"))
+    outputq = Char[]
+    opstack = Char[]
+    infix = collect(s)
     for tok in infix
-        if all(isdigit, tok)
+        if tok == ' '
+            continue
+        elseif all(isdigit, tok)
             push!(outputq, tok)
-        elseif tok == "("
+        elseif tok == '('
             push!(opstack, tok)
-        elseif tok == ")"
-            while !isempty(opstack) && (op = pop!(opstack)) != "("
+        elseif tok == ')'
+            while !isempty(opstack) && (op = pop!(opstack)) != '('
                push!(outputq, op)
             end
         else # operator
             while !isempty(opstack)
                 op = pop!(opstack)
                 # if op has higher precedence than tok
-                if op == "+" && tok == "*"
+                if op == '+' && tok == '*'
                     push!(outputq, op)
                 else
                     push!(opstack, op)  # undo peek
@@ -79,7 +80,7 @@ function infix2rpn(s)
         # println("The working output stack is $outputq")
     end
     while !isempty(opstack)
-        if (op = pop!(opstack)) == "("
+        if (op = pop!(opstack)) == '('
             throw("mismatched parentheses")
         else
             push!(outputq, op)
@@ -89,8 +90,8 @@ function infix2rpn(s)
 end
 
 function rpn(s)
-    stack = Any[]
-    for op in map(eval, map(Meta.parse, s))
+    stack = Union{Int, Function}[]
+    for op in parse_eval.(s)
         if isa(op, Function)
             arg2 = pop!(stack)
             arg1 = pop!(stack)
@@ -111,11 +112,20 @@ function part1()
     sum(eval_str.(data))
 end
 
+function parse_eval(x)
+    if isdigit(x)
+        parse(Int, x)
+    elseif x == '+'
+        +
+    elseif x == '*'
+        *
+    end
+end
+
 function part2()
     data = process_data()
     sum(eval_str_2.(data))
 end
-
 
 end # module
 

@@ -3,7 +3,7 @@ quickactivate(@__DIR__)
 using BenchmarkTools, ProgressMeter, Printf, Dates, Pkg, Latexify
 import DataFrames: DataFrame
 
-max_day = 17
+max_day = 18
 
 for day = 1:max_day
     include(@sprintf("day_%02d/main.jl", day))
@@ -42,5 +42,5 @@ end
 df = benchmarkAll()
 
 print(latexify(df, env=:mdtable, latex=false, side=1:max_day))
-df = benchmark(day=17)
-print(latexify(df, env=:mdtable, latex=false, side=17))
+df = benchmark(day=18)
+print(latexify(df, env=:mdtable, latex=false, side=18))

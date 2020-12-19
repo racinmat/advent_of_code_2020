@@ -27,7 +27,7 @@ process_data() = raw_data |> x->split(x, "\n\n") .|> (x->split(x, "\n"))
 test_data = cur_day |> read_file("test_input.txt") |> x->split(x, "\n\n") .|> (x->split(x, "\n"))
 
 function rule2regex(rules, idx)
-    val = rules[idx]
+    @inbounds val = rules[idx]
     if val isa Vector{Int}
         reduce(*, rule2regex.(Ref(rules), val))
     elseif val isa AbstractString
@@ -36,21 +36,22 @@ function rule2regex(rules, idx)
         idxs1, idxs2 = val
         reg1 = reduce(*, rule2regex.(Ref(rules), idxs1))
         reg2 = reduce(*, rule2regex.(Ref(rules), idxs2))
-        "($reg1|$reg2)"
+        # string interpolation is faster than concatenation in this case, benchmarked
+        "(?:$reg1|$reg2)"
     end
 end
 
 function rule2regex2(rules, idx)
-    val = rules[idx]
+    @inbounds val = rules[idx]
     if idx == 8
         reg1 = rule2regex2(rules, 42)
-        "($reg1)+"
+        "(?:$reg1)+"
     elseif idx == 11
         reg1 = rule2regex2(rules, 42)
         reg2 = rule2regex2(rules, 31)
         make_regex(i) = "(($reg1){$i}($reg2){$i})"
         # fuck it, it's day 19, I'm lazy
-        "($(make_regex(1))|$(make_regex(2))|$(make_regex(3))|$(make_regex(4))|$(make_regex(5)))"
+        "(?:$(make_regex(1))|$(make_regex(2))|$(make_regex(3))|$(make_regex(4))|$(make_regex(5)))"
     elseif val isa Vector{Int}
         reduce(*, rule2regex2.(Ref(rules), val))
     elseif val isa AbstractString
@@ -59,7 +60,7 @@ function rule2regex2(rules, idx)
         idxs1, idxs2 = val
         reg1 = reduce(*, rule2regex2.(Ref(rules), idxs1))
         reg2 = reduce(*, rule2regex2.(Ref(rules), idxs2))
-        "($reg1|$reg2)"
+        "(?:$reg1|$reg2)"
     end
 end
 
