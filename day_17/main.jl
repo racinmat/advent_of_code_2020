@@ -18,16 +18,19 @@ make_offset(i::CartesianIndex{4},j::CartesianIndex{4}) = i.I.+j.I.-(2,2,2,2)
 
 function do_step(grid)
     new_grid = copy(grid)
-    @inbounds @simd for i in findall(grid .== 1)
+    calculated = Set{Tuple}()
+    @inbounds for i in findall(grid .== 1)
         # only 0 next to 1 can be switched to 1
         if !(3 <= sum(grid[around(i, size(grid))...]) <= 4)
             new_grid[i] = 0
         end
-        @inbounds @simd for j in findall(==(0), grid[around(i, size(grid))...])
+        @inbounds for j in findall(==(0), grid[around(i, size(grid))...])
             k = make_offset(j, i)
+            k ∈ calculated && continue
             if sum(grid[around(k, size(grid))...]) == 3
                 new_grid[k...] = 1
             end
+            push!(calculated, k)
         end
     end
     new_grid
@@ -40,7 +43,7 @@ function part1()
     orig_offset = maximum(size(data))
     grid_size = orig_offset + n_steps*2
     grid = zeros(Int, (grid_size, grid_size, grid_size))
-    for i in findall(==(1), data)
+    @inbounds for i in findall(==(1), data)
         grid[i.I[1]+grid_size÷2-orig_offset÷2-1,i.I[2]+grid_size÷2-orig_offset÷2-1,grid_size÷2] = 1
     end
     for i in 1:n_steps
@@ -56,15 +59,17 @@ function part2()
     orig_offset = maximum(size(data))
     grid_size = orig_offset + n_steps*2
     grid = zeros(Int, (grid_size, grid_size, grid_size, grid_size))
-    for i in findall(==(1), data)
+    @inbounds for i in findall(==(1), data)
         grid[i.I[1]+grid_size÷2-orig_offset÷2-1,i.I[2]+grid_size÷2-orig_offset÷2-1,grid_size÷2,grid_size÷2] = 1
     end
     for i in 1:n_steps
         grid = do_step(grid)
     end
+    # @btime do_step(grid)
+    # @btime zeros(Int, (grid_size, grid_size, grid_size, grid_size))
     sum(grid)
 end
-
+using BenchmarkTools
 
 end # module
 

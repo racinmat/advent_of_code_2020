@@ -39,7 +39,7 @@ function part2()
     conditions, my_ticket_nums, other_tickets_nums = data
     valid_tickets = hcat(my_ticket_nums, filter(j->all(i->any(c->any(i .∈ c[2:3]), conditions), j), other_tickets_nums)...)'
     valid_mappings = Dict(i=>findall(cond->all(i->any(i .∈ cond[2:3]), col), conditions) for (i, col) in enumerate(eachcol(valid_tickets)))
-    valid_mappings
+    # valid_mappings
     true_mapping = Dict{Int, Int}()
     while length(true_mapping) < length(valid_mappings)
         certain = Dict(first(v)=>k for (k, v) in valid_mappings if length(v) == 1)
@@ -47,7 +47,7 @@ function part2()
         vals2remove = keys(certain)
         foreach(kv->deleteat!(kv[2], findall(x->x ∈ vals2remove,kv[2])), valid_mappings)
     end
-    true_mapping
+    # true_mapping
     col_names = Dict(name=>true_mapping[i] for  (i, name) in enumerate(getindex.(conditions, 1)))
     departure_fields = filter(x->startswith(x, "departure"), keys(col_names))
     departure_idxs = getindex.(Ref(col_names), departure_fields)
