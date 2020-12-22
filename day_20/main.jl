@@ -245,9 +245,9 @@ function part2()
     neighbor_tile = first(neighbor_tiles)
 
     new_tile_pos, new_tile_orientation = place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tile, result_tiles, result_orientation)
-    # this work, generalize this for all 4 borders and corners
+    # this work, generalize this for all 4 borders and corners, make it side_len-2 times per side
     place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tiles[2], result_tiles, result_orientation)
-
+    # then all borders should be done and we can start filling the inner part
 
     whole_tiles = tiles2whole_tiles(side_len, result_tiles, result_orientation)
     # todo: now I have matching side, need to figure out where to put it based on index
