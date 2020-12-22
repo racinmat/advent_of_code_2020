@@ -140,11 +140,11 @@ function rotate_tile2orientation(tile, idx)
     elseif idx == 5
         tile[:,end:-1:1]
     elseif idx == 6
-        tile'
+        tile[end:-1:1,end:-1:1]'
     elseif idx == 7
         tile[end:-1:1,:]
     elseif idx == 8
-        tile[end:-1:1,end:-1:1]'
+        tile'
     end
 end
 
@@ -200,15 +200,18 @@ function get_neighbor_tiles(tile_borders, border_tiles_sum, tile_neighbors, tile
     neighbor_tiles, placable_directions
 end
 
-function place_neighbor(tile_borders, placable_directions, tl_key, cur_orientation, result_tiles, result_orientation)
-    placements = hcat([tile_borders[neighbor_tile] .== Ref(x) for x in tile_borders[tl_key][placable_directions]]...)
+function place_neighbor(tile_borders, placable_directions, start_idx, neighbor_tile, result_tiles, result_orientation)
+    start_key = result_tiles[start_idx]
+    start_orientation = result_orientation[start_idx]
+    placements = hcat([tile_borders[neighbor_tile] .== Ref(x) for x in tile_borders[start_key][placable_directions]]...)
     to_idx, from_idx = findfirst(placements .== 1).I
-    new_tile_direction = orientation2placement[cur_orientation][placable_directions[from_idx]]
+    new_tile_direction = orientation2placement[start_orientation][placable_directions[from_idx]]
     new_tile_pos = tl_idx + idx2dir[new_tile_direction]
 
     new_tile_orientation = borders2orientation[idx2dir[new_tile_direction]][to_idx]
     result_orientation[new_tile_pos] = new_tile_orientation
     result_tiles[new_tile_pos] = neighbor_tile
+    new_tile_pos, new_tile_orientation
 end
 
 function part2()
@@ -241,7 +244,10 @@ function part2()
     neighbor_tiles, placable_directions = get_neighbor_tiles(tile_borders, border_tiles_sum, tl_neighbors, tl_key)
     neighbor_tile = first(neighbor_tiles)
 
-    place_neighbor(tile_borders, placable_directions, tl_key, cur_orientation, result_tiles, result_orientation)
+    new_tile_pos, new_tile_orientation = place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tile, result_tiles, result_orientation)
+    # this work, generalize this for all 4 borders and corners
+    place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tiles[2], result_tiles, result_orientation)
+
 
     whole_tiles = tiles2whole_tiles(side_len, result_tiles, result_orientation)
     # todo: now I have matching side, need to figure out where to put it based on index
