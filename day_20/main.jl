@@ -183,21 +183,28 @@ function tiles2whole_tiles(side_len, result_tiles, result_orientation)
 end
 
 # place top left tile
-function place_tl_tile(tile_borders, il_idx)
-    tl_neighbors = tile_borders[tl_key] .∈ Ref(other_tile_borders(tile_borders, tl_key))
-    # figuring out orientation from the tl_neighbors
-    nonplacable_directions = findall(==(0), tl_neighbors[begin:4])
+function place_tl_tile(tile_borders, tl_idx)
+    cur_tile_borders = tile_borders[tl_idx] .∈ Ref(other_tile_borders(tile_borders, tl_idx))
+    nonplacable_directions = findall(==(0), cur_tile_borders[begin:4])
     cur_orientation = zeros2orientation[tuple(nonplacable_directions...)]
-    cur_orientation, tl_neighbors
+    cur_orientation
 end
 
-function get_neighbor_tiles(tile_borders, border_tiles_sum, tile_neighbors, tile_idx)
+function get_neighbor_tiles(tile_borders, border_tiles_sum, tile_idx)
+    tile_neighbors = tile_borders[tile_idx] .∈ Ref(other_tile_borders(tile_borders, tile_idx))
     placable_directions = findall(==(1), tile_neighbors[begin:4])
     border_tile_borders = filter(kv->kv[1] ∈ keys(border_tiles_sum), tile_borders)
     tile_fits = Dict(k=>v .∈ Ref(tile_borders[tile_idx]) for (k, v) in border_tile_borders)
     tile_fit_counts = Dict(k=>sum(v) for (k, v) in tile_fits)
     neighbor_tiles = [k for (k, v) in tile_fit_counts if v == 2]
     neighbor_tiles, placable_directions
+end
+
+function get_free_neighbor_tiles(tile_borders, border_tiles_sum, tile_idx)
+    neighbor_tiles, placable_directions = get_neighbor_tiles(tile_borders, border_tiles_sum, tile_idx)
+    tile_idx
+    result_tiles[tile_idx]
+    # todo: filter out already occupied directions from placable directions
 end
 
 function place_neighbor(tile_borders, placable_directions, start_idx, neighbor_tile, result_tiles, result_orientation)
@@ -216,7 +223,7 @@ end
 
 function part2()
     data = process_data()
-    data = test_data
+    # data = test_data
     tiles = Dict(data)
 
     tile_borders = Dict(k=>[all_borders_not_reversed(v)..., all_borders_reversed(v)...] for (k, v) in tiles)
@@ -238,15 +245,20 @@ function part2()
     tl_key = first(keys(edge_tiles_sum))
     result_tiles[tl_idx] = tl_key
 
-    cur_orientation, tl_neighbors = place_tl_tile(tile_borders, tl_idx)
+    cur_orientation = place_tl_tile(tile_borders, tl_key)
     result_orientation[tl_idx] = cur_orientation
 
-    neighbor_tiles, placable_directions = get_neighbor_tiles(tile_borders, border_tiles_sum, tl_neighbors, tl_key)
+    neighbor_tiles, placable_directions = get_neighbor_tiles(tile_borders, border_tiles_sum, tl_key)
     neighbor_tile = first(neighbor_tiles)
 
     new_tile_pos, new_tile_orientation = place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tile, result_tiles, result_orientation)
+    cur_idx = result_tiles[new_tile_pos]
     # this work, generalize this for all 4 borders and corners, make it side_len-2 times per side
-    place_neighbor(tile_borders, placable_directions, tl_idx, neighbor_tiles[2], result_tiles, result_orientation)
+    neighbor_tiles, placable_directions = get_neighbor_tiles(tile_borders, border_tiles_sum, cur_idx)
+    for i in 1:side_len-2
+        new_tile_pos, new_tile_orientation = place_neighbor(tile_borders, placable_directions, new_tile_pos, neighbor_tiles[2], result_tiles, result_orientation)
+        cur_idx = result_tiles[new_tile_pos]
+    end
     # then all borders should be done and we can start filling the inner part
 
     whole_tiles = tiles2whole_tiles(side_len, result_tiles, result_orientation)
