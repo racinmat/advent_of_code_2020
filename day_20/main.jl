@@ -319,11 +319,7 @@ function is_result_consistent(whole_tiles, side_len, result_tiles)
     true
 end
 
-function part2()
-    data = process_data()
-    # data = test_data
-    tiles = Dict(data)
-
+function assemble_puzzle(tiles)
     tile_borders = Dict(k=>[all_borders_not_reversed(v)..., all_borders_reversed(v)...] for (k, v) in tiles)
     borders_match = Dict(k=>v .∈ Ref(other_tile_borders(tile_borders, k)) for (k, v) in tile_borders)
     non_fitting_borders = Dict(k=> 8 .- sum(v) for (k, v) in borders_match)
@@ -343,30 +339,24 @@ function part2()
     cur_pos = CartesianIndex(2, 1)
     cur_orientation = result_orientation[cur_pos]
 
-    # for i in 1:40
-    #     if isempty(get_0s_in_4neighborhood(result_tiles, cur_pos))
-    #         cur_pos = findfirst(==(0), result_tiles)-CartesianIndex(1, 0)
-    #     end
-    #     @info count(==(0), result_tiles) cur_pos
-    #     neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos)
-    #     neighbor_tile = first(neighbor_tiles)
-    #     cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
-    # end
-
     while count(==(0), result_tiles) > 0
         if isempty(get_0s_in_4neighborhood(result_tiles, cur_pos))
             cur_pos = findfirst(==(0), result_tiles)-CartesianIndex(1, 0)
         end
-        @info count(==(0), result_tiles) cur_pos
         neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos)
         neighbor_tile = first(neighbor_tiles)
         cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
-        if !is_result_consistent(whole_tiles, side_len, result_tiles)
-            @warn "shit broken"
-            break
-        end
     end
     whole_tiles = tiles2whole_tiles(tiles, side_len, result_tiles, result_orientation)
+    @assert is_result_consistent(whole_tiles, side_len, result_tiles)
+    whole_tiles, result_tiles, result_orientation
+end
+
+function part2()
+    data = process_data()
+    # data = test_data
+    tiles = Dict(data)
+    whole_tiles, result_tiles, result_orientation = assemble_puzzle(tiles)
 
     result_tile = remove_duplicated_parts(whole_tiles)
 
