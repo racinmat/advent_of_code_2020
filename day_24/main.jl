@@ -4,7 +4,7 @@ using DrWatson
 quickactivate(@__DIR__)
 include(projectdir("misc.jl"))
 
-using ImageTransformations
+using ImageFiltering
 
 parse_row(str) = SubString.(str, findall(r"(?:se)|(?:sw)|(?:ne)|(?:nw)|e|w", str))
 
