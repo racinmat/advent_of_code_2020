@@ -6,6 +6,9 @@ include(projectdir("misc.jl"))
 
 using Base.Iterators, StatsBase, Images
 
+using TimerOutputs
+const to = TimerOutput()
+
 function read_tile(str)
     lines = read_lines(str)
     tile_desc = first(lines)
@@ -39,7 +42,6 @@ test_data = cur_day |> read_file("test_input.txt") |> x->split(x, "\n\n") .|> re
 # neighbor borders orientations to orientation of tile
 # this assumes the old tile is not rotated, one must rotate the it accordingly
 # idx of border to idx of orientation
-# todo: udělat
 # when we have existing tile and new tile in relative position [key] to the existing one, this transforms which border
 # of a new tile fits with original tile to the orientation of new tile
 # beware: when we following situation: position [1, 0], and S aligning, it's actually SR, because it's reversed
@@ -93,7 +95,10 @@ const borders2orientation = Dict(
     ),
 )
 
+# view makes it 2 times slower, and causes 4 times more allocations
+# all_borders_not_reversed(v) = @views v[1,:],v[end,:],v[:,1],v[:,end]
 all_borders_not_reversed(v) = @inbounds v[1,:],v[end,:],v[:,1],v[:,end]
+# all_borders_reversed(v) = @views v[1,end:-1:1],v[end,end:-1:1],v[end:-1:1,1],v[end:-1:1,end]
 all_borders_reversed(v) = @inbounds v[1,end:-1:1],v[end,end:-1:1],v[end:-1:1,1],v[end:-1:1,end]
 
 other_tile_borders(tile_borders, id) = flatten(v for (k, v) in tile_borders if k != id)
@@ -109,7 +114,6 @@ reversed(d::Dict) = Dict(v=>k for (k, v) in d)
 const idx2dir = reversed(dir2idx)
 
 # maps orientation to tile direction=>direction in grid (rotated direction from POV of tile)
-# todo: must fix this! this is wrong, must use reversed sides here for 1-4 where appropriate
 const orientation2placement = Dict(
         1=>Dict(1=>1, 2=>2, 3=>3, 4=>4),
         2=>Dict(4=>1, 5=>3, 3=>2, 6=>4),
@@ -120,9 +124,6 @@ const orientation2placement = Dict(
         7=>Dict(1=>2, 2=>1, 7=>3, 8=>4),
         8=>Dict(3=>1, 1=>3, 2=>4, 4=>2),
 )
-# todo: figure out how to convert spatial orientation to indexes
-
-# evaluating only free slots in grid
 # alignment matrix has 1 on (k,l)th position if k-th index of old tile aligns with l-th index of new tile
 # if orientation of old tile is 1
 # and the new tile is in west, I'm interested in alignment between indices ()
@@ -172,7 +173,6 @@ function part1()
     data = process_data()
     # data = test_data
     tiles = Dict(data)
-    tiles
 
     tile_borders = Dict(k=>[all_borders_not_reversed(v)..., all_borders_reversed(v)...] for (k, v) in tiles)
     # display(tiles[2729])
@@ -208,25 +208,26 @@ relative to `tile_pos` they can be placed in, from POV of `tile_pos`, so they ar
 function get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, tile_pos, tile_subset=nothing)
     # now it works only for border tiles
     @inbounds tile_idx = result_tiles[tile_pos]
-    @inbounds tile_neighbors = tile_borders[tile_idx] .∈ Ref(other_tile_borders(tile_borders, tile_idx))
-    @inbounds tile_orientation = result_orientation[tile_pos]
-    # findall does not with with indices
-    @inbounds rotation_map = orientation2placement[tile_orientation]
-    @inbounds placable_directions = [k for (k, v) in enumerate(tile_neighbors) if v == 1 && k ∈ keys(orientation2placement[tile_orientation])]
+
     already_placed_tiles = unique(result_tiles)
-    feasible_tile_borders = filter(kv->kv[1] ∉ unique(result_tiles), tile_borders)
+    #=@timeit to "feasible_tile_borders"=# feasible_tile_borders = filter(kv->kv[1] ∉ already_placed_tiles, tile_borders)
     if !isnothing(tile_subset)
         feasible_tile_borders = filter(kv->kv[1] ∈ tile_subset, feasible_tile_borders)
     end
 
-    free_neighbors = get_0s_in_4neighborhood(result_tiles, tile_pos)
-    free_placable_directions = [i for i in placable_directions if getindex.(Ref(rotation_map), i) ∈ getindex.(Ref(dir2idx), free_neighbors)]
+    #=@timeit to "tile_neighbors"=# @inbounds tile_neighbors = tile_borders[tile_idx] .∈ Ref(other_tile_borders(feasible_tile_borders, tile_idx))
+    @inbounds tile_orientation = result_orientation[tile_pos]
+    # findall does not with with indices
+    @inbounds rotation_map = orientation2placement[tile_orientation]
+    #=@timeit to "placable_directions"=# @inbounds placable_directions = [k for (k, v) in enumerate(tile_neighbors) if v == 1 && k ∈ keys(orientation2placement[tile_orientation])]
 
-    @inbounds tile_fits = Dict(k=>v .∈ Ref(tile_borders[tile_idx]) for (k, v) in feasible_tile_borders)
-    tile_fit_counts = Dict(k=>sum(v) for (k, v) in tile_fits)
-    @inbounds neighbor_tiles = [k for (k, v) in tile_fit_counts if v == 2]
-    # todo: filter out already placed neighbors, return only non-used neighbors
-    free_neighbor_tiles = filter(x -> x ∉ unique(result_tiles), neighbor_tiles)
+    free_neighbors = get_0s_in_4neighborhood(result_tiles, tile_pos)
+    #=@timeit to "free_placable_directions"=# free_placable_directions = [i for i in placable_directions if getindex.(Ref(rotation_map), i) ∈ getindex.(Ref(dir2idx), free_neighbors)]
+
+    #=@timeit to "tile_fits"=# @inbounds tile_fits = Dict(k=>v .∈ Ref(tile_borders[tile_idx]) for (k, v) in feasible_tile_borders)
+    #=@timeit to "tile_fit_counts"=# tile_fit_counts = Dict(k=>sum(v) for (k, v) in tile_fits)
+    #=@timeit to "neighbor_tiles"=# @inbounds neighbor_tiles = [k for (k, v) in tile_fit_counts if v == 2]
+    #=@timeit to "free_neighbor_tiles"=# free_neighbor_tiles = filter(x -> x ∉ already_placed_tiles, neighbor_tiles)
     free_neighbor_tiles, free_placable_directions
 end
 
@@ -242,20 +243,20 @@ function place_borders!(edge_tiles_sum, border_tiles_sum, tile_borders, result_t
 
     for j in 1:3
         for i in 1:side_len-2
-            neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(border_tiles_sum))
+            #=@timeit to "get_free_neighbor_tiles"=# neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(border_tiles_sum))
             neighbor_tile = first(neighbor_tiles)
-            cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
+            #=@timeit to "place_neighbor!"=# cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
         end
 
-        neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(edge_tiles_sum))
+        #=@timeit to "get_free_neighbor_tiles"=# neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(edge_tiles_sum))
         neighbor_tile = first(neighbor_tiles)
-        cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
+        #=@timeit to "place_neighbor!"=# cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
     end
 
     for i in 1:side_len-2
-        neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(border_tiles_sum))
+        #=@timeit to "get_free_neighbor_tiles"=# neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos, keys(border_tiles_sum))
         neighbor_tile = first(neighbor_tiles)
-        cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
+        #=@timeit to "place_neighbor!"=# cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
     end
 end
 
@@ -284,13 +285,23 @@ function is_result_consistent(whole_tiles, side_len, result_tiles)
     i = 2
     j = 2
     # c = 0
-    # todo: add check for gorizontal borders, these are only vertical
     for i in 1:side_len
         for j in 1:side_len-1
             borders_match = whole_tiles[1+(i-1)*10:i*10, j*10] == whole_tiles[1+(i-1)*10:i*10, j*10+1]
             borders_filled = result_tiles[i,j] != 0 && result_tiles[i,j+1] != 0
             if borders_filled && !borders_match
-                @info "border not fitting" i j borders_match borders_filled
+                @info "vertical border not fitting" i j borders_match borders_filled
+                return false
+            end
+            # c += borders_filled
+        end
+    end
+    for i in 1:side_len-1
+        for j in 1:side_len
+            borders_match = whole_tiles[i*10, 1+(j-1)*10:j*10] == whole_tiles[i*10+1, 1+(j-1)*10:j*10]
+            borders_filled = result_tiles[i,j] != 0 && result_tiles[i+1,j] != 0
+            if borders_filled && !borders_match
+                @info "horizontal border not fitting" i j borders_match borders_filled
                 return false
             end
             # c += borders_filled
@@ -325,9 +336,9 @@ function assemble_puzzle(tiles)
         if isempty(get_0s_in_4neighborhood(result_tiles, cur_pos))
             cur_pos = findfirst(==(0), result_tiles)-CartesianIndex(1, 0)
         end
-        neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos)
+        #=@timeit to "get_free_neighbor_tiles"=# neighbor_tiles, placable_directions = get_free_neighbor_tiles(tile_borders, result_tiles, result_orientation, cur_pos)
         neighbor_tile = first(neighbor_tiles)
-        cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
+        #=@timeit to "place_neighbor!"=# cur_pos, cur_orientation = place_neighbor!(tile_borders, placable_directions, cur_pos, neighbor_tile, result_tiles, result_orientation)
     end
     whole_tiles = tiles2whole_tiles(tiles, side_len, result_tiles, result_orientation)
     @assert is_result_consistent(whole_tiles, side_len, result_tiles)
@@ -360,7 +371,10 @@ function part2()
     data = process_data()
     # data = test_data
     tiles = Dict(data)
-    whole_tiles, result_tiles, result_orientation = assemble_puzzle(tiles)
+    #=@timeit to "assemble_puzzle"=# whole_tiles, result_tiles, result_orientation = assemble_puzzle(tiles)
+
+    # using BenchmarkTools
+    # @btime assemble_puzzle(tiles)
     result_tile = remove_borders(whole_tiles)
 
     monster_pattern = [
@@ -371,7 +385,7 @@ function part2()
 
     num_monsters = 0
     for i in 1:8
-        num_monsters = find_sea_monsters(rotate_tile2orientation(result_tile, i), monster_pattern)
+        #=@timeit to "find_sea_monsters"=# num_monsters = find_sea_monsters(rotate_tile2orientation(result_tile, i), monster_pattern)
         if num_monsters > 0
             break
         end
@@ -385,5 +399,8 @@ if false
 println(Day20.part1())
 Day20.submit(Day20.part1(), Day20.cur_day, 1)
 println(Day20.part2())
+Day20.reset_timer!(Day20.to)
+println(Day20.part2())
+display(Day20.to)
 Day20.submit(Day20.part2(), Day20.cur_day, 2)
 end
