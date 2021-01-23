@@ -9,6 +9,7 @@ for day = 1:max_day
     include(@sprintf("day_%02d/main.jl", day))
 end
 
+include(@sprintf("day_%02d/main.jl", 2))
 pkg"precompile"
 
 formatTime(t) = (1e9 * t) |> BenchmarkTools.prettytime
@@ -42,5 +43,6 @@ end
 df = benchmarkAll()
 
 print(latexify(df, env=:mdtable, latex=false, side=1:max_day))
-df = benchmark(day=25)
-print(latexify(df, env=:mdtable, latex=false, side=25))
+a_day = 2
+df = benchmark(day=a_day)
+print(latexify(df, env=:mdtable, latex=false, side=a_day))

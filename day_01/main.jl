@@ -15,9 +15,7 @@ function part1()
     val_max = maximum(data)
     ok_vals = filter(<=(2020 - val_min), data)
     for i in combinations(ok_vals, 2)
-        if sum(i) == 2020
-            return prod(i)
-        end
+        sum(i) == 2020 && return prod(i)
     end
 end
 
@@ -28,9 +26,14 @@ function part2()
     val_min_2 = sorted_vals[2]
     val_max = sorted_vals[end]
     ok_vals = filter(<=(2020 - val_min - val_min_2), data)
-    for i in combinations(ok_vals, 3)
-        if sum(i) == 2020
-            return prod(i)
+    # around 12x faster than simply
+    # for i in combinations(ok_vals, 3)
+    #     sum(i) == 2020 && return prod(i)
+    # end
+    for i in combinations(ok_vals, 2)
+        sum(i) >= val_max && continue
+        for j in ok_vals
+            sum(i)+j == 2020 && return prod(i)*j
         end
     end
 end

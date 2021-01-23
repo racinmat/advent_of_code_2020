@@ -6,6 +6,7 @@ include(projectdir("misc.jl"))
 
 using StatsBase
 
+#todo: try threaded stuff and atomic accumulator, maybe transducers reduce?
 function parse_row(str)
     m = match(r"(\d+)-(\d+)\s(\w):\s(\w+)", str)
     parse(Int, m[1]), parse(Int, m[2]), first(m[3]), m[4]
@@ -17,25 +18,25 @@ process_data() = raw_data |> read_lines .|> parse_row
 
 function part1()
     data = process_data()
-    valid = 0
-    for (from, to, char, word) in data
+    valid = Threads.Atomic{Int}(0)
+    Threads.@threads for (from, to, char, word) in data
         occurs = mapreduce(==(char), +, word)
         if from <= occurs <= to
-            valid += 1
+            Threads.atomic_add!(valid, 1)
         end
     end
-    valid
+    valid[]
 end
 
 function part2()
     data = process_data()
-    valid = 0
-    for (from, to, char, word) in data
+    valid = Threads.Atomic{Int}(0)
+    Threads.@threads for (from, to, char, word) in data
         if (word[from] == char) ⊻ (word[to] == char)
-            valid += 1
+            Threads.atomic_add!(valid, 1)
         end
     end
-    valid
+    valid[]
 end
 
 
