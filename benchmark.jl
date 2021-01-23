@@ -9,7 +9,6 @@ for day = 1:max_day
     include(@sprintf("day_%02d/main.jl", day))
 end
 
-include(@sprintf("day_%02d/main.jl", 2))
 pkg"precompile"
 
 formatTime(t) = (1e9 * t) |> BenchmarkTools.prettytime

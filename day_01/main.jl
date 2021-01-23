@@ -14,8 +14,11 @@ function part1()
     val_min = minimum(data)
     val_max = maximum(data)
     ok_vals = filter(<=(2020 - val_min), data)
-    for i in combinations(ok_vals, 2)
-        sum(i) == 2020 && return prod(i)
+    for (ki, i) in enumerate(ok_vals)
+        (2020 - i) > val_max && continue
+        for (kj, j) in enumerate(Iterators.rest(ok_vals, ki+1))
+            i + j == 2020 && return i*j
+        end
     end
 end
 
@@ -26,14 +29,16 @@ function part2()
     val_min_2 = sorted_vals[2]
     val_max = sorted_vals[end]
     ok_vals = filter(<=(2020 - val_min - val_min_2), data)
-    # around 12x faster than simply
+    # much faster than simply
     # for i in combinations(ok_vals, 3)
     #     sum(i) == 2020 && return prod(i)
     # end
-    for i in combinations(ok_vals, 2)
-        sum(i) >= val_max && continue
-        for j in ok_vals
-            sum(i)+j == 2020 && return prod(i)*j
+    for (ki, i) in enumerate(ok_vals)
+        for (kj, j) in enumerate(Iterators.rest(ok_vals, ki+1))
+            i + j > 2020 && continue
+            for (kk, k) in enumerate(Iterators.rest(ok_vals, kj+1))
+                i + j + k == 2020 && return i*j*k
+            end
         end
     end
 end

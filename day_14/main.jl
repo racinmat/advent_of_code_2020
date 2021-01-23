@@ -57,7 +57,8 @@ function part2()
     # data = test_data
     memory = Dict{Int, Int}()
     cur_mask = nothing
-    i, j = data[2]
+    # i, j = data[1]
+    # i, j = data[2]
     for (i, j) in data
         if i == "mask"
             cur_mask = j
@@ -68,6 +69,7 @@ function part2()
             floatings = findall(ismissing, addresses_rev)
             base_num = sum(2 .^ (findall(isequal(true), addresses_rev).-1))
             all_combs = get_pair_combinations(length(floatings))
+            # pos = all_combs[2]
             @simd for pos in all_combs
                 idx_i = sum_floats(pos, floatings) + base_num
                 memory[idx_i] = val
