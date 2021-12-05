@@ -6,8 +6,6 @@ include(projectdir("misc.jl"))
 
 using ThreadsX
 function parse_row(str)
-    parts = split(str, ", ")
-    start = popfirst!(parts)
     m = match(r"(\w+) ((?:\+|-)?\d+)", str)
     [m[1], parse(Int, m[2])]
 end
